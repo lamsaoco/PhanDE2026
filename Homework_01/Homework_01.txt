@@ -1,3 +1,6 @@
 Q1. 25.3
 Q2. db:5432 OR postgres:5432
-Q3. 
+Q3. 8007
+Q4. 2025-11-14 15:36:27 (Longest tripdistance: 88.03)
+Q5. East Harlem North (total_amount: 9281.920000000004)
+Q6. Yorkville West (tip_amount: 81.89)
