@@ -36,3 +36,7 @@ override.tf.json
 .terraformrc
 terraform.rc
 Homework_01/.ipynb_checkpoints/notebook-checkpoint.ipynb
+my-gcp-creds.json
+Homework_01/terraform/.terraform.lock.hcl
+Homework_01/terraform/main.tf
+Homework_01/terraform/variables.tf
