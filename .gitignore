@@ -40,3 +40,5 @@ my-gcp-creds.json
 Homework_01/terraform/.terraform.lock.hcl
 Homework_01/terraform/main.tf
 Homework_01/terraform/variables.tf
+*.parquet
+Homework_03/.terraform.lock.hcl
