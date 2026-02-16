@@ -42,3 +42,5 @@ Homework_01/terraform/main.tf
 Homework_01/terraform/variables.tf
 *.parquet
 Homework_03/.terraform.lock.hcl
+Homework_04/FHV_trips/FHV_trips/taxi_rides_ny.duckdb
+Homework_04/taxi_rides_ny/taxi_rides_ny/taxi_rides_ny.duckdb

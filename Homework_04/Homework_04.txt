@@ -1,0 +1,6 @@
+Q1. int_trips_unioned only
+Q2. dbt will fail the test, returning a non-zero exit code
+Q3. 12,184
+Q4. East Harlem North
+Q5. 384,624
+Q6. 43,244,696 Rows

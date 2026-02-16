@@ -1,0 +1,8 @@
+sources:
+  - name: raw
+    description: Raw taxi trip data from NYC TLC
+    database: taxi_rides_ny
+    schema: prod
+    tables:
+      - name: fhv_tripdata
+        description: Raw fhv taxi trip records
