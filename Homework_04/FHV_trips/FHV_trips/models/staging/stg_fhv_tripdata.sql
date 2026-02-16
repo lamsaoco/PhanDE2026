@@ -4,13 +4,13 @@ with source as (
 
 renamed as (
     select
-        dispatching_base_num as dispatching_base_number,
-        pickup_datetime,
-        dropoff_datetime,
-        pu_locationid as pickup_location_id,
-        do_locationid as dropoff_location_id,
-        sr_flag as sr_flag,
-        affiliated_base_num as affiliated_base_number
+        cast(dispatching_base_num as string) as dispatching_base_number,
+        cast(pickup_datetime as timestamp) as pickup_datetime,
+        cast(dropOff_datetime as timestamp) as dropoff_datetime,
+        cast(PUlocationID as integer) as pickup_location_id,
+        cast(DOlocationID as integer) as dropoff_location_id,
+        cast(SR_Flag as integer) as sr_flag,
+        cast(Affiliated_base_number as string) as affiliated_base_number
     from source
 )
 
