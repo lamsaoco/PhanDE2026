@@ -1,0 +1,6 @@
+Q1. .bruin.yml and pipeline/ with pipeline.yml and assets/
+Q2. replace - truncate and rebuild entirely
+Q3. bruin run --var 'taxi_types=["yellow"]'
+Q4. bruin run ingestion/trips.py --downstream
+Q5. name: not_null
+Q6. --full-refresh

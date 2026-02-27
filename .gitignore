@@ -44,3 +44,10 @@ Homework_01/terraform/variables.tf
 Homework_03/.terraform.lock.hcl
 Homework_04/FHV_trips/FHV_trips/taxi_rides_ny.duckdb
 Homework_04/taxi_rides_ny/taxi_rides_ny/taxi_rides_ny.duckdb
+
+.bruin.yml
+logs/runs
+logs/*.log
+__pycache__/
+*.py[cod]
+Homework_05/my-pipeline/duckdb.db
