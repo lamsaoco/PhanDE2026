@@ -51,3 +51,5 @@ logs/*.log
 __pycache__/
 *.py[cod]
 Homework_05/my-pipeline/duckdb.db
+Homework_06/OpenJDK17U-jdk_x64_windows_hotspot_17.0.18_8.zip
+
