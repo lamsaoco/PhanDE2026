@@ -1,4 +1,58 @@
 Q1. v25.3.9
 Q2. took 539.01 seconds => 300
 Q3. 8506
-Q4. 
+Q4. 74
+Q5. 72 => 81
+Q6. 2025-10-16 18:00:00
+
+docker exec -it homework_07-redpanda-1 rpk topic create green-trips
+
+uv run python src/producers/producer.py
+
+docker exec -it homework_07-jobmanager-1 flink run -py /opt/src/job/aggregation_job_count_trips.py
+docker exec -it homework_07-jobmanager-1 flink run -py /opt/src/job/aggregation_job_tips_amount_calc
+
+docker exec -it homework_07-postgres-1 psql -U postgres -c "
+CREATE TABLE IF NOT EXISTS processed_events_aggregated (
+    window_start TIMESTAMP(3),
+    PULocationID INT,
+    num_trips BIGINT,
+    total_tips_amount DOUBLE PRECISION,
+    PRIMARY KEY (window_start, PULocationID)
+);"
+
+SELECT PULocationID, num_trips
+FROM processed_events_aggregated
+ORDER BY num_trips DESC
+LIMIT 3;
+
+docker exec -it homework_07-postgres-1 psql -U postgres -c "
+CREATE TABLE IF NOT EXISTS processed_events_session_window (
+    PULocationID INT,
+    window_start TIMESTAMP(3),
+    window_end   TIMESTAMP(3),
+    num_trips    BIGINT,
+    PRIMARY KEY (PULocationID, window_start)
+);"
+
+SELECT PULocationID, window_start, window_end, num_trips
+FROM processed_events_session_window
+ORDER BY num_trips DESC
+LIMIT 5;
+
+
+docker exec -it homework_07-postgres-1 psql -U postgres -c "
+CREATE TABLE IF NOT EXISTS processed_events_tips_per_hour (
+    window_start     TIMESTAMP(3),
+    window_end       TIMESTAMP(3),
+    total_tip_amount DOUBLE PRECISION,
+    PRIMARY KEY (window_start)
+);"
+
+SELECT 
+    window_start,
+    window_end,
+    total_tip_amount
+FROM processed_events_tips_per_hour
+ORDER BY total_tip_amount DESC
+LIMIT 1;

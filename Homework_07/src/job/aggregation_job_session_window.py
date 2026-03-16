@@ -2,15 +2,15 @@ from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.table import EnvironmentSettings, StreamTableEnvironment
 
 
-def create_events_aggregated_sink(t_env):
-    table_name = 'processed_events_aggregated'
+def create_session_aggregated_sink(t_env):
+    table_name = 'processed_events_session_window'
     sink_ddl = f"""
         CREATE TABLE {table_name} (
-            window_start TIMESTAMP(3),
             PULocationID INT,
-            num_trips BIGINT,
-            total_tip_amount DOUBLE,
-            PRIMARY KEY (window_start, PULocationID) NOT ENFORCED
+            window_start TIMESTAMP(3),
+            window_end   TIMESTAMP(3),
+            num_trips    BIGINT,
+            PRIMARY KEY (PULocationID, window_start) NOT ENFORCED
         ) WITH (
             'connector' = 'jdbc',
             'url' = 'jdbc:postgresql://postgres:5432/postgres',
@@ -23,6 +23,7 @@ def create_events_aggregated_sink(t_env):
     t_env.execute_sql(sink_ddl)
     return table_name
 
+
 def create_events_source_kafka(t_env):
     table_name = "events"
     source_ddl = f"""
@@ -33,21 +34,22 @@ def create_events_source_kafka(t_env):
             tip_amount DOUBLE,
             lpep_pickup_datetime VARCHAR,
             event_timestamp AS TO_TIMESTAMP(lpep_pickup_datetime, 'yyyy-MM-dd HH:mm:ss'),
-            WATERMARK FOR event_timestamp AS event_timestamp
+            WATERMARK FOR event_timestamp AS event_timestamp - INTERVAL '5' SECOND
         ) WITH (
             'connector' = 'kafka',
             'properties.bootstrap.servers' = 'redpanda:29092',
             'topic' = 'green-trips',
             'scan.startup.mode' = 'earliest-offset',
             'properties.auto.offset.reset' = 'earliest',
-            'format' = 'json'
+            'format' = 'json',
+            'json.ignore-parse-errors' = 'true'
         );
         """
     t_env.execute_sql(source_ddl)
     return table_name
 
 
-def log_aggregation():
+def session_window_aggregation():
     # Set up the execution environment
     env = StreamExecutionEnvironment.get_execution_environment()
     env.enable_checkpointing(10 * 1000)
@@ -58,21 +60,26 @@ def log_aggregation():
     t_env = StreamTableEnvironment.create(env, environment_settings=settings)
 
     try:
-        # Create Kafka table
         source_table = create_events_source_kafka(t_env)
-        aggregated_table = create_events_aggregated_sink(t_env)
+        sink_table = create_session_aggregated_sink(t_env)
 
+        # SESSION TVF: groups events by PULocationID where gap between events < 5 minutes.
+        # Each PULocationID has its own independent session timeline.
         t_env.execute_sql(f"""
-        INSERT INTO {aggregated_table}
+        INSERT INTO {sink_table}
         SELECT
-            window_start,
             PULocationID,
-            COUNT(*) AS num_trips,
-            SUM(tip_amount) AS total_tip_amount
+            window_start,
+            window_end,
+            COUNT(*) AS num_trips
         FROM TABLE(
-            TUMBLE(TABLE {source_table}, DESCRIPTOR(event_timestamp), INTERVAL '5' MINUTES)
+            SESSION(
+                TABLE {source_table} PARTITION BY PULocationID,
+                DESCRIPTOR(event_timestamp),
+                INTERVAL '5' MINUTE
+            )
         )
-        GROUP BY window_start, PULocationID;
+        GROUP BY PULocationID, window_start, window_end;
 
         """).wait()
 
@@ -81,4 +88,4 @@ def log_aggregation():
 
 
 if __name__ == '__main__':
-    log_aggregation()
+    session_window_aggregation()

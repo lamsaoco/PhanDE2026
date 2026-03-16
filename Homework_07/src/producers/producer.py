@@ -1,5 +1,6 @@
 import dataclasses
 import json
+import math
 import sys
 import time
 from pathlib import Path
@@ -17,6 +18,8 @@ df = pd.read_parquet(url, columns=columns)
 
 def ride_serializer(ride):
     ride_dict = dataclasses.asdict(ride)
+    # Replace NaN float values with None (JSON null) - NaN is invalid JSON
+    ride_dict = {k: (None if isinstance(v, float) and math.isnan(v) else v) for k, v in ride_dict.items()}
     json_str = json.dumps(ride_dict)
     return json_str.encode('utf-8')
 
